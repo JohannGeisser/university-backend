@@ -1,7 +1,6 @@
 package com.hyperskill.university.controllers;
 
 import com.hyperskill.university.models.Course;
-import com.hyperskill.university.models.Department;
 import com.hyperskill.university.models.Student;
 import com.hyperskill.university.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +52,4 @@ public class CourseController {
     public List<Course> getCoursesByDepartmentId(@PathVariable("departmentId") Integer departmentId) {
         return courseService.getCoursesByDepartment(departmentId);
     }
-
-
 }

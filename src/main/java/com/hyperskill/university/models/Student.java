@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -14,7 +12,6 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @Entity
-
 public class Student {
 
     @Id
@@ -30,5 +27,4 @@ public class Student {
     private Integer studentId;
     private String firstName;
     private String lastName;
-
 }

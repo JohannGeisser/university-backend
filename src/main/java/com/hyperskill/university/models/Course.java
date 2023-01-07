@@ -57,5 +57,4 @@ public class Course {
     )
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Student> students;
-
 }
