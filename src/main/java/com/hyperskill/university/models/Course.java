@@ -8,6 +8,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -28,6 +29,8 @@ public class Course {
             generator = "course_sequence"
     )
     private Integer courseId;
+
+    @NotNull
     private String courseName;
 
     @ManyToOne(

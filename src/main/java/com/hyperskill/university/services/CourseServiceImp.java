@@ -31,6 +31,10 @@ public class CourseServiceImp implements CourseService {
     }
 
     public Course getCourseById(Integer courseId) {
+        Course course = courseRepository.findCourseByCourseId(courseId);
+        if (course == null) {
+            return null;
+        }
         return courseRepository.findCourseByCourseId(courseId);
     }
 
