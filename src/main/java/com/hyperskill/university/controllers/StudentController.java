@@ -2,6 +2,7 @@ package com.hyperskill.university.controllers;
 
 import com.hyperskill.university.models.Student;
 import com.hyperskill.university.services.StudentService;
+import com.hyperskill.university.services.StudentServiceImp;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public class StudentController {
 
     private final StudentService studentService;
 
-    public StudentController(StudentService studentService) {
+    public StudentController(StudentServiceImp studentService) {
         this.studentService = studentService;
     }
 
@@ -54,5 +55,4 @@ public class StudentController {
     public List<Student> showStudentNotEnrolledByCourse(@PathVariable("courseId") Integer courseId) {
         return studentService.getStudentNotEnrolledByCourseId(courseId);
     }
-
 }

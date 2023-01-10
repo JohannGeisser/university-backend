@@ -26,5 +26,4 @@ public class Department {
     )
     private Integer departmentId;
     private String depName;
-
 }

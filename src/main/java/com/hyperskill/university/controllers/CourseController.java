@@ -1,12 +1,18 @@
 package com.hyperskill.university.controllers;
 
+import com.hyperskill.university.exceptions.DuplicatedException;
+import com.hyperskill.university.exceptions.InvalidException;
 import com.hyperskill.university.models.Course;
-import com.hyperskill.university.models.Department;
 import com.hyperskill.university.models.Student;
 import com.hyperskill.university.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -18,41 +24,93 @@ public class CourseController {
     private CourseService courseService;
 
     @GetMapping
-    public List<Course> showCourses() {
-        return courseService.getCourses();
+    public ResponseEntity<List<Course>> showCourses() {
+        List<Course> courses = courseService.getCourses();
+        return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 
     @GetMapping(path = "{courseId}")
-    public Course showCourse(@PathVariable("courseId") Integer courseId) {
-        return courseService.getCourseById(courseId);
+    public ResponseEntity<Object> showCourse(@PathVariable("courseId") Integer courseId) {
+        Course course = courseService.getCourseById(courseId);
+        if (course == null) {
+            String msg = "Course with ID: " + courseId + " not found";
+            return new ResponseEntity<>(Collections.singletonMap("msg", msg), HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(course, HttpStatus.OK);
     }
 
     @PostMapping
-    public Course addCourse(@RequestBody Course course) {
-        return courseService.addNewCourse(course);
+    public ResponseEntity<Object> addCourse(@Valid @RequestBody Course course, BindingResult result) {
+        if (result.hasErrors()) {
+            return new ResponseEntity<>(result.getAllErrors(), HttpStatus.BAD_REQUEST);
+        }
+        try {
+            Course newCourse = courseService.addNewCourse(course);
+            return new ResponseEntity<>(newCourse, HttpStatus.CREATED) ;
+        } catch (DuplicatedException duplicatedException) {
+            String msg = "Course already created";
+            return new ResponseEntity<>(Collections.singletonMap("msg", msg), HttpStatus.CONFLICT);
+        }
     }
 
     @PutMapping(path = {"{courseId}"})
-    public void enrollStudent(@PathVariable("courseId") Integer courseId,
+    public ResponseEntity<Object> enrollStudent(@PathVariable("courseId") Integer courseId,
                               @RequestBody Student student) {
-        courseService.enrollStudent(courseId, student);
+        Course course = courseService.getCourseById(courseId);
+        if (course == null) {
+            String msg = "Course with ID: " + courseId + " not found";
+            return new ResponseEntity<>(Collections.singletonMap("msg", msg), HttpStatus.NOT_FOUND);
+        }
+        try {
+            Course updatedCourse = courseService.enrollStudent(courseId, student);
+            return new ResponseEntity<>(updatedCourse, HttpStatus.OK);
+        } catch (InvalidException invalidException) {
+            String msg = "Invalid student data";
+            return new ResponseEntity<>(Collections.singletonMap("msg", msg), HttpStatus.BAD_REQUEST);
+        } catch (DuplicatedException duplicatedException) {
+            String msg = "Student already enrolled";
+            return new ResponseEntity<>(Collections.singletonMap("msg", msg), HttpStatus.CONFLICT);
+        }
     }
 
     @PutMapping(path = {"/remove/{courseId}"})
-    public void unenrollStudent(@PathVariable("courseId") Integer courseId,
+    public ResponseEntity<Object> unenrollStudent(@PathVariable("courseId") Integer courseId,
                                 @RequestBody Student student) {
-        courseService.removeStudentFromCourse(courseId, student);
+        Course course = courseService.getCourseById(courseId);
+        if (course == null) {
+            String msg = "Course with ID: " + courseId + " not found";
+            return new ResponseEntity<>(Collections.singletonMap("msg", msg), HttpStatus.NOT_FOUND);
+        }
+        try {
+            Course updatedCourse = courseService.removeStudentFromCourse(courseId, student);
+            return new ResponseEntity<>(updatedCourse, HttpStatus.OK);
+        } catch (InvalidException invalidException) {
+            String msg = "Invalid student data";
+            return new ResponseEntity<>(Collections.singletonMap("msg", msg), HttpStatus.BAD_REQUEST);
+        } catch (DuplicatedException duplicatedException) {
+            String msg = "Student is not enrolled";
+            return new ResponseEntity<>(Collections.singletonMap("msg", msg), HttpStatus.CONFLICT);
+        }
     }
 
     @DeleteMapping(path = {"{courseId}"})
-    public void deleteCourse(@PathVariable("courseId") Integer courseId) {
+    public ResponseEntity<Void> deleteCourse(@PathVariable("courseId") Integer courseId) {
+        Course course = courseService.getCourseById(courseId);
+        if (course == null) {
+            String msg = "Course with ID: " + courseId + " not found";
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         courseService.removeCourse(courseId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping(path = {"/dep/{departmentId}"})
-    public List<Course> getCoursesByDepartmentId(@PathVariable("departmentId") Integer departmentId) {
-        return courseService.getCoursesByDepartment(departmentId);
+    public ResponseEntity<Object> getCoursesByDepartmentId(@PathVariable("departmentId") Integer departmentId) {
+        List<Course> courses = courseService.getCoursesByDepartment(departmentId);
+        if (courses == null) {
+            String msg = "Department with ID: " + departmentId + " not found";
+            return new ResponseEntity<>(Collections.singletonMap("msg", msg), HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(courses, HttpStatus.OK);
     }
-
-
 }
