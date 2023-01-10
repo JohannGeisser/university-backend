@@ -1,17 +1,16 @@
 package com.hyperskill.university.services;
 
-import com.hyperskill.university.utils.exceptions.DuplicatedException;
-import com.hyperskill.university.utils.exceptions.InvalidException;
 import com.hyperskill.university.models.Course;
 import com.hyperskill.university.models.Student;
 import com.hyperskill.university.repositories.CourseRepository;
-import com.hyperskill.university.repositories.StudentRepository;
+import com.hyperskill.university.utils.exceptions.DuplicatedException;
+import com.hyperskill.university.utils.exceptions.InvalidException;
+import com.hyperskill.university.utils.validations.InvalidValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CourseServiceImp implements CourseService {
@@ -20,7 +19,7 @@ public class CourseServiceImp implements CourseService {
     private CourseRepository courseRepository;
 
     @Autowired
-    private StudentRepository studentRepository;
+    private InvalidValidation invalidValidation;
 
     public List<Course> getCourses() {
         return courseRepository.findAll();
@@ -28,7 +27,6 @@ public class CourseServiceImp implements CourseService {
 
     public Course addNewCourse(Course course) throws DuplicatedException {
         List<Course> courses = courseRepository.findAll();
-
         for (Course courseToBeCompared : courses) {
             if (course.getCourseName().equalsIgnoreCase(courseToBeCompared.getCourseName())) {
                 throw new DuplicatedException();
@@ -39,21 +37,13 @@ public class CourseServiceImp implements CourseService {
 
     @Transactional
     public Course enrollStudent(Integer courseId, Student student) throws DuplicatedException, InvalidException {
-        Course course = courseRepository.findCourseByCourseId(courseId);
-        Optional<Student> studentOptional = studentRepository.findById(student.getStudentId());
-        boolean isValidStudent = false;
-
-        if (studentOptional.isPresent()) {
-            Student studentToBeFound = studentOptional.get();
-            isValidStudent = studentToBeFound.equals(student);
-        }
-        if (isValidStudent == false) {
+        if (invalidValidation.isNotValid(student)) {
             throw new InvalidException();
         }
-
-        if (course.getStudents().contains(student)) {
+        if (invalidValidation.isEnrolled(courseId, student)) {
             throw new DuplicatedException();
         }
+        Course course = courseRepository.findCourseByCourseId(courseId);
         List<Student> students = course.getStudents();
         students.add(student);
         return course;
@@ -65,22 +55,13 @@ public class CourseServiceImp implements CourseService {
 
     @Transactional
     public Course removeStudentFromCourse(Integer courseId, Student student) throws InvalidException, DuplicatedException {
-        Course course = courseRepository.findCourseByCourseId(courseId);
-        Optional<Student> studentOptional = studentRepository.findById(student.getStudentId());
-        boolean isValidStudent = false;
-
-        if (studentOptional.isPresent()) {
-            Student studentToBeFound = studentOptional.get();
-            isValidStudent = studentToBeFound.equals(student);
-        }
-        if (isValidStudent == false) {
+        if (invalidValidation.isNotValid(student)) {
             throw new InvalidException();
         }
-
-        if (course.getStudents().indexOf(student) == -1) {
+        if (!invalidValidation.isEnrolled(courseId, student)) {
             throw new DuplicatedException();
         }
-
+        Course course = courseRepository.findCourseByCourseId(courseId);
         List<Student> students = course.getStudents();
         students.remove(student);
         return course;
