@@ -26,7 +26,14 @@ public class CourseServiceImp implements CourseService {
         return courseRepository.findAll();
     }
 
-    public Course addNewCourse(Course course) {
+    public Course addNewCourse(Course course) throws DuplicatedException {
+        List<Course> courses = courseRepository.findAll();
+
+        for (Course courseToBeCompared : courses) {
+            if (course.getCourseName().equalsIgnoreCase(courseToBeCompared.getCourseName())) {
+                throw new DuplicatedException();
+            }
+        }
         return courseRepository.save(course);
     }
 
@@ -53,11 +60,7 @@ public class CourseServiceImp implements CourseService {
     }
 
     public Course getCourseById(Integer courseId) {
-        Course course = courseRepository.findCourseByCourseId(courseId);
-        if (course == null) {
-            return null;
-        }
-        return course;
+        return courseRepository.findCourseByCourseId(courseId);
     }
 
     @Transactional

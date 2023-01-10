@@ -10,7 +10,7 @@ import java.util.List;
 public interface CourseService {
 
     List<Course> getCourses();
-    Course addNewCourse(Course course);
+    Course addNewCourse(Course course) throws DuplicatedException;
     Course enrollStudent(Integer courseId, Student student) throws DuplicatedException, InvalidException;
     Course getCourseById(Integer courseId);
     Course removeStudentFromCourse(Integer courseId, Student student) throws InvalidException, DuplicatedException;

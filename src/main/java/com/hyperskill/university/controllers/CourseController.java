@@ -44,11 +44,13 @@ public class CourseController {
         if (result.hasErrors()) {
             return new ResponseEntity<>(result.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
-        Course newCourse = courseService.addNewCourse(course);
-        if (newCourse == null) {
-            return new ResponseEntity<>(Collections.singletonMap("msg", "Error creating course"), HttpStatus.INTERNAL_SERVER_ERROR);
+        try {
+            Course newCourse = courseService.addNewCourse(course);
+            return new ResponseEntity<>(newCourse, HttpStatus.CREATED) ;
+        } catch (DuplicatedException duplicatedException) {
+            String msg = "Course already created";
+            return new ResponseEntity<>(Collections.singletonMap("msg", msg), HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>(newCourse, HttpStatus.CREATED) ;
     }
 
     @PutMapping(path = {"{courseId}"})
