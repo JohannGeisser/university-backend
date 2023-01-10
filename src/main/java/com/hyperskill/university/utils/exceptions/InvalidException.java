@@ -1,4 +1,4 @@
-package com.hyperskill.university.exceptions;
+package com.hyperskill.university.utils.exceptions;
 
 public class InvalidException extends Exception {
 

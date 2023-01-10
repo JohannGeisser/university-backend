@@ -1,7 +1,7 @@
 package com.hyperskill.university.services;
 
-import com.hyperskill.university.exceptions.DuplicatedException;
-import com.hyperskill.university.exceptions.InvalidException;
+import com.hyperskill.university.utils.exceptions.DuplicatedException;
+import com.hyperskill.university.utils.exceptions.InvalidException;
 import com.hyperskill.university.models.Course;
 import com.hyperskill.university.models.Student;
 import com.hyperskill.university.repositories.CourseRepository;
