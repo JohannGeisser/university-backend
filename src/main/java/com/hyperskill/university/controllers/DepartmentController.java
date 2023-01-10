@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/department")
+@RequestMapping(path = "/v1/departments")
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 public class DepartmentController extends OncePerRequestFilter {
 

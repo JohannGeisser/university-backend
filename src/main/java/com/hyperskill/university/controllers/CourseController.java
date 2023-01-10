@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/course")
+@RequestMapping(path = "/v1/courses")
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 public class CourseController {
 
